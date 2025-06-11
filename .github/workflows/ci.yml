@@ -71,7 +71,7 @@ jobs:
           ignore-unfixed: true
 
   api-testing:
-    needs: scan-image
+    needs: build-test-docker
     runs-on: ubuntu-latest
 
     steps:
