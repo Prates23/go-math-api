@@ -30,10 +30,6 @@ jobs:
             go mod init go-math-api
           fi
 
-      - name: Tidy Go dependencies
-        run: go mod tidy
-        working-directory: go_math_api
-
       - name: Build the Go application
         run: go build -o main .
 
