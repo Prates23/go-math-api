@@ -54,10 +54,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t ${{ steps.image.outputs.full_tag }} .
+        run:  docker build -t $IMAGE_NAME:${{ steps.vars.outputs.SHORT_SHA }} .
 
       - name: Push Docker image
-        run: docker push ${{ steps.image.outputs.full_tag }}
+        run: docker push $IMAGE_NAME:${{ steps.vars.outputs.SHORT_SHA }}
 
   scan-image:
     needs: build-test-docker
