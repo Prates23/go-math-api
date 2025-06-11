@@ -27,7 +27,7 @@ func main() {
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request on /api/v1/hello")
-	fmt.Fprintln(w, "Hello from the Go application running inside the container!")
+	fmt.Fprintln(w, "Hello from the Go application running inside the container!!!!!")
 }
 
 func makeMathHandler(op func(float64, float64) (float64, error)) http.HandlerFunc {
