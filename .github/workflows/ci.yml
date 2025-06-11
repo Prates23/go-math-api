@@ -80,4 +80,4 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
           event-type: run-api-tests
-          client-payload: '{"image": "${{ secrets.DOCKERHUB_USERNAME }}/go-math-api:${{ needs.build-test-docker.outputs.short_sha }}"}'
+          client-payload: '{"image": "${{ secrets.DOCKERHUB_USERNAME }}/go-math-api", "tag":"${{ needs.build-test-docker.outputs.short_sha }}"}'

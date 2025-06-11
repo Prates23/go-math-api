@@ -15,10 +15,10 @@ jobs:
       - name: Simulate API test suite
         run: |
           echo "Pulling image..."
-          docker pull ${{ github.event.client_payload.image }}
+          docker pull ${{ github.event.client_payload.image }}:${{ github.event.client_payload.tag }}
           
           echo "Starting container..."
-          docker run -d -p 8080:8080 --name api-test ${{ github.event.client_payload.image }}
+          docker run -d -p 8080:8080 --name api-test ${{ github.event.client_payload.image }}:${{ github.event.client_payload.tag }}
 
           echo "Running tests..."
           sleep 5
