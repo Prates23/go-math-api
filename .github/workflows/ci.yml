@@ -31,7 +31,7 @@ jobs:
           fi
 
       - name: Build the Go application
-        run: go build -o main .
+        run: CGO_ENABLED=0 go build -o main .
 
       - name: Run unit tests
         run: go test -v ./...
