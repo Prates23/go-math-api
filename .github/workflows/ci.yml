@@ -53,3 +53,29 @@ jobs:
       - name: Push Docker image
         run: |
           docker push $IMAGE_NAME:${{ steps.vars.outputs.SHORT_SHA }}
+
+  scan-image:
+    needs: build-test-docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/go-math-api:${{ needs.build-test-docker.outputs.short_sha }}
+          format: table
+          exit-code: 0
+          ignore-unfixed: true
+
+  api-testing:
+    needs: scan-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger API test workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          event-type: run-api-tests
+          client-payload: '{"image": "${{ env.IMAGE_NAME }}", "tag": "${{ steps.vars.outputs.SHORT_SHA }}"}'
