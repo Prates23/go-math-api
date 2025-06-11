@@ -13,7 +13,7 @@ jobs:
       IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/go-math-api
 
     outputs:
-      image_tag: ${{ steps.image.outputs.full_tag }}
+      SHORT_SHA: ${{ steps.vars.outputs.SHORT_SHA }}
 
     steps:
       - name: Checkout code
@@ -43,10 +43,7 @@ jobs:
         id: vars
         run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Compose full image tag
-        id: image
-        run: echo "full_tag=${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_OUTPUT
-
+        
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -68,7 +65,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
-          image-ref: ${{ needs.build-test-docker.outputs.image_tag }}
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/go-math-api:${{ needs.build-test-docker.outputs.short_sha }}
           format: table
           exit-code: 0
           ignore-unfixed: true
@@ -83,4 +80,4 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
           event-type: run-api-tests
-          client-payload: '{"image": "${{ needs.build-test-docker.outputs.image_tag }}"}'
+          client-payload: '{"image": "${{ secrets.DOCKERHUB_USERNAME }}/go-math-api:${{ needs.build-test-docker.outputs.short_sha }}"}'

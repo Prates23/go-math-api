@@ -11,7 +11,6 @@ jobs:
       - name: Print image info
         run: |
           echo "Running API tests against image:"
-          echo "Image: ${{ github.event.client_payload.image }}"
 
       - name: Simulate API test suite
         run: |
