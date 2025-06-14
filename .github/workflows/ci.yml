@@ -105,8 +105,17 @@ jobs:
         - name: Update image tag in deployment manifest
           run: |
             FILE="k8s-applications/deployments/${{ env.APP_NAME }}/overlays/${{ env.OVERLAY }}/deployment.yaml"
-            echo "Updating $FILE"
-            sed -i -E "s|(image: )[^\"]*/${{ env.APP_NAME }}:.*|\1${{ needs.build-test-docker.outputs.short_sha }}|" "$FILE"
+            NEW_IMAGE="${{ needs.build-test-docker.outputs.short_sha }}"
+
+            echo "Updating image in $FILE to $NEW_IMAGE"
+
+            # Build exact image prefix for accurate matching
+            IMAGE_PREFIX="${{ secrets.DOCKERHUB_USERNAME }}/${APP_NAME}:"
+
+            # Replace the line containing the image with the full new value
+            sed -i -E "s|^([[:space:]]*image:[[:space:]]*)${IMAGE_PREFIX}.*|\\1${NEW_IMAGE}|" "$FILE"
+
+            echo "Resulting image line:"
             grep "image:" "$FILE"
 
         - name: Commit and push manifest
