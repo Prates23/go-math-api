@@ -5,6 +5,12 @@ on:
     branches:
       - master
 
+
+env:
+  APP_NAME: go-math-api
+  OVERLAY: dev
+
+
 jobs:
   build-test-docker:
     runs-on: ubuntu-latest
@@ -81,43 +87,35 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           event-type: run-api-tests
           client-payload: '{"image": "${{ secrets.DOCKERHUB_USERNAME }}/go-math-api", "tag":"${{ needs.build-test-docker.outputs.short_sha }}"}'
+
   update-k8s-manifest:
-    needs: build-test-docker
-    runs-on: ubuntu-latest
+      needs:
+        - build-test-docker
+        - scan-image
+        - api-tests
+      runs-on: ubuntu-latest
 
-    env:
-      APP_NAME: go-math-api
-      OVERLAY: dev
-      IMAGE_TAG: ${{ needs.build-test-docker.outputs.short_sha }}
+      steps:
+        - name: Checkout k8s-applications repo
+          uses: actions/checkout@v3
+          with:
+            repository: Prates23/k8s-applications
+            ref: master
+            path: k8s-applications
+            token: ${{ secrets.GITHUB_TOKEN }}
 
-    steps:
-      - name: Checkout k8s repo
-        uses: actions/checkout@v3
-        with:
-          repository: Prates23/k8s-applications
-          path: k8s-applications
-          token: ${{ secrets.GITHUB_TOKEN }}
+        - name: Update image tag in manifest
+          run: |
+            FILE="k8s-applications/deployments/${{ env.APP_NAME }}/overlays/${{ env.OVERLAY }}/deployment.yaml"
+            echo "Updating $FILE"
+            sed -i "s|image: .*/${{ env.APP_NAME }}:.*|image: ${{ needs.build-test-docker.outputs.short_sha }}|" "$FILE"
+            grep "image:" "$FILE"
 
-      - name: Confirm target file path
-        run: |
-          echo "Looking in deployments/$APP_NAME/overlays/$OVERLAY/"
-          ls -l k8s-applications/deployments/$APP_NAME/overlays/$OVERLAY
-
-      - name: Update image tag in deployment manifest
-        run: |
-          FILE="k8s-applications/deployments/$APP_NAME/overlays/$OVERLAY/deployment.yaml"
-          echo "Updating image in $FILE to $IMAGE_TAG"
-
-          sed -i "s|\(image: .*/$APP_NAME:\).*|\1${IMAGE_TAG##*:}|" "$FILE"
-
-          echo "Updated manifest:"
-          grep "image:" "$FILE"
-
-      - name: Commit and push changes
-        run: |
-          cd k8s-applications
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add deployments/$APP_NAME/overlays/$OVERLAY/deployment.yaml
-          git commit -m "Update $APP_NAME image tag to $IMAGE_TAG [CI]"
-          git push
+        - name: Commit and push manifest
+          run: |
+            cd k8s-applications
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add deployments/${{ env.APP_NAME }}/overlays/${{ env.OVERLAY }}/deployment.yaml
+            git commit -m "Update ${{ env.APP_NAME }} image to ${{ needs.build-test-docker.outputs.short_sha }}"
+            git push
