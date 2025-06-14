@@ -92,7 +92,7 @@ jobs:
       needs:
         - build-test-docker
         - scan-image
-        - api-tests
+        - api-testing
       runs-on: ubuntu-latest
 
       steps:
