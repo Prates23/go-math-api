@@ -104,19 +104,21 @@ jobs:
 
         - name: Update image tag in deployment manifest
           run: |
-            FILE="k8s-applications/deployments/${{ env.APP_NAME }}/overlays/${{ env.OVERLAY }}/deployment.yaml"
-            NEW_IMAGE="${{ needs.build-test-docker.outputs.short_sha }}"
+            FILE="k8s-applications/deployments/$APP_NAME/overlays/$OVERLAY/deployment.yaml"
+            FULL_IMAGE="$DOCKERHUB_USERNAME/$APP_NAME:$SHORT_SHA"
 
-            echo "Updating image in $FILE to $NEW_IMAGE"
+            echo "Updating image in $FILE to $FULL_IMAGE"
 
-            # Build exact image prefix for accurate matching
-            IMAGE_PREFIX="${{ secrets.DOCKERHUB_USERNAME }}/${APP_NAME}:"
-
-            # Replace the line containing the image with the full new value
-            sed -i -E "s|^([[:space:]]*image:[[:space:]]*)${IMAGE_PREFIX}.*|\\1${NEW_IMAGE}|" "$FILE"
+            # Replace the full image reference
+            sed -i -E "s|^([[:space:]]*image:[[:space:]]*).*/$APP_NAME:.*|\\1$FULL_IMAGE|" "$FILE"
 
             echo "Resulting image line:"
             grep "image:" "$FILE"
+          env:
+            APP_NAME: ${{ env.APP_NAME }}
+            OVERLAY: ${{ env.OVERLAY }}
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+            SHORT_SHA: ${{ needs.build-test-docker.outputs.short_sha }}
 
         - name: Commit and push manifest
           run: |
