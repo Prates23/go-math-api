@@ -100,7 +100,7 @@ jobs:
             repository: Prates23/k8s-applications
             ref: master
             path: k8s-applications
-            token: ${{ secrets.GITHUB_TOKEN }}
+            token: ${{ secrets.GH_TOKEN }}
 
         - name: Update image tag in manifest
           run: |
