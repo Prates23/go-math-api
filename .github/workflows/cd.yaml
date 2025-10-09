@@ -14,7 +14,7 @@ on:
         required: true
         default: 'student01'
       student_number:
-        description: 'Student number (01-10) — maps to port 808<Student Number>'
+        description: 'Student number (81-90) — maps to port 808<Student Number>'
         required: true
         default: '01'
 
@@ -30,7 +30,7 @@ jobs:
 
       - name: Deploy container
         run: |
-          PORT="808${{ inputs.student_number }}"
+          PORT="80${{ inputs.student_number }}"
           sshpass -p "${{ secrets.STUDENT_PASSWORD }}" \
             ssh -o StrictHostKeyChecking=no \
                 "${{ inputs.ssh_username }}@${{ inputs.ec2_host }}" \
