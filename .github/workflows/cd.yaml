@@ -16,7 +16,7 @@ on:
       student_number:
         description: 'Student number (81-90) — maps to port 808<Student Number>'
         required: true
-        default: '01'
+        default: '81'
 
 jobs:
   deploy:
