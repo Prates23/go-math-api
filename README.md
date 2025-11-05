@@ -9,6 +9,7 @@ This project is a simple RESTful API in Go that supports basic arithmetic operat
 Each endpoint is versioned (`/api/v1/...`) to support best practices in API design.
 
 
+
 ## API Usage
 
 ### Sum
