@@ -9,4 +9,6 @@ COPY . .
 
 RUN go build -o main .
 
+ENV APP_ENV=development
+
 CMD ["./main"]
