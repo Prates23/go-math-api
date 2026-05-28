@@ -43,5 +43,7 @@ jobs:
           docker run -d -p "${PORT}:8080" "${IMAGE_REF}"
 
           echo "Current containers:"
+          echo "hello"
           docker ps --format 'table {{.ID}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}'
           EOF
+
